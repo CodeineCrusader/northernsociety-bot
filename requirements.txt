@@ -1,0 +1,7 @@
+PyNaCl
+discord.py
+discord.py[voice]
+pytz
+jishaku
+pytest
+flake8
