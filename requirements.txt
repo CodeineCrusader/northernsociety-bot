@@ -5,3 +5,4 @@ pytz
 jishaku
 pytest
 flake8
+pylint
