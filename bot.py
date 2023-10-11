@@ -11,6 +11,8 @@ import colorama
 import random
 from dotenv import dotenv_values
 import jishaku
+from interactions import input_modal, ban_input_other
+from embed_generator import embed_generator
 
 config = dotenv_values(".env")
 
@@ -97,6 +99,51 @@ async def purge(interaction: discord.Interaction,limit: int):
                                                     ephemeral=True)
         elif e == commands.MissingPermissions:
             await interaction.response.send_message('You do not have permission to use this command!', ephemeral=True)
+
+
+@client.tree.command(name="ban")
+@app_commands.describe(
+    ban_user="Select the User You Wish to Ban.",
+    ban_type="Select the Type of Ban.",
+    ban_reason="Select the Reasoning for the Ban - You Will Be Asked for a Testimony About the Situation."
+)
+@app_commands.choices(
+    ban_type=[
+        app_commands.Choice(name="Soft Ban", value="1a"),
+        app_commands.Choice(name="Hard Ban", value="1b")
+    ],
+    ban_reason=[
+        app_commands.Choice(name="DV | Racism in Voice Chats", value="2a"),
+        app_commands.Choice(name="IGV | No Intent to Roleplay", value="2b"),
+        app_commands.Choice(name="Other (Reason Not Provided)", value="2other")
+    ]
+)
+@app_commands.rename(
+    ban_user="user",
+    ban_type="type",
+    ban_reason="reason",
+)
+@commands.has_permissions(administrator=True)
+async def ban(interaction: discord.Interaction, ban_user: discord.User, ban_type: app_commands.Choice[str], ban_reason: app_commands.Choice[str]):
+    await interaction.response.defer(ephemeral=True, thinking=True)
+    if interaction.user.id == ban_user.id:
+        return await interaction.followup.send(content=f"*Please specify the user you wish to ban. You're unable to ban yourself from this guild!*")
+    match ban_reason.value:
+        case "2other":
+            reason_testimony = {"Reason": "*Reason Has Yet to Be Provided*", "Testimony": "*Testimony Has Yet to Be Provided*"}
+            embed_gen = embed_generator(title="! User Ban Finalization !",
+                                        description=f"**DO NOT DISMISS THIS MESSAGE**\nTo finalize the ban, please input the following information with the buttons below.\n\n1. Ban Reason - Reasoning for ban.\n2. Testimony - Description of the situation.",
+                                        color=0xb80a0a, fields=reason_testimony)
+            embed = embed_gen.build()
+            view = ban_input_other(user_id=interaction.user.id, other=True, data=reason_testimony)
+            await interaction.followup.send(embed=embed, view=view)
+            await view.wait()
+    match ban_type.value:
+        case "1a":
+            pass
+        case "1b":
+            pass
+
 
 if __name__ == '__main__':
     if config["ENVIRONMENT"] == "PRODUCTION":
