@@ -74,6 +74,12 @@ client = Client()
 client.remove_command("help")
 
 
+@client.event
+async def on_member_join(member):
+    if member.guild.id == 1158271879556104204:
+        await member.add_roles(get(member.guild.roles, name="Community Member"))
+
+
 @client.tree.command(name='purge', description="Purge [a] message(s) from a channel.")
 @commands.has_permissions(manage_messages=True)
 @app_commands.describe(limit="The count of message(s) you want deleted.")
