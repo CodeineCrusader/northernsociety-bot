@@ -120,8 +120,9 @@ class tickets(commands.Cog):
                 view = discord.ui.View()
                 await interaction.response.send_message(f"*Your ticket has been created! Please navigate to <#{channel.id}> to continue your report.*", ephemeral=True)
                 await channel.send(content=f"{interaction.user.mention} <Staff Ping>", embed=embed, view=view)
-
-        except AttributeError or KeyError:
+        except AttributeError:
+            pass
+        except KeyError:
             pass
 
 
