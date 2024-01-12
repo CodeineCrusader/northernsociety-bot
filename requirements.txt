@@ -1,3 +1,4 @@
+wheel
 PyNaCl
 discord.py
 discord.py[voice]
@@ -6,3 +7,4 @@ jishaku
 pytest
 flake8
 pylint
+python-dotenv

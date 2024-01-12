@@ -30,20 +30,27 @@ file_h.setFormatter(formatter)
 logger.addHandler(stream_h)
 logger.addHandler(file_h)
 
+staff_roles = [1158576945144004668, 1158576946914005082, 1158576945857048656, 1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654]
+
 class tickets(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @app_commands.command(name="support", description="Create Support Ticket Embed")
+    ticket = app_commands.Group(name="ticket", description="Commands in Relation to the Ticket Module.")
+    
+    @ticket.command(name="support", description="Create Support Ticket Embed")
     @app_commands.checks.has_permissions(administrator=True)
     async def support(self, interaction: discord.Interaction):
         if not interaction.guild_id == 1158271879556104204:
             return interaction.response.send_message("You need to be in the main server to execute this command!", ephemeral=True)
         channel = self.client.get_channel(1159362455785443348)
-        fields = {"Server Support": "PLACEHOLDER", "Player Report": "PLACEHOLDER", "Staff Report": "PLACEHOLDER"}
+        fields = {"Server Support": "Support Tickets used to collect roles, ask questions, as well as for redeeming items in the community. Any inquiries that are not reports on staff or players will be answered in here.",
+                  "Player Report": "Player Report Tickets are used for violations of the community guidelines. This may be for a member breaking a rule or a member of emergency services that is in violation of law or department guidelines or standards. These tickets are reviewed by community moderation if a player is reported and public safety if the player was in violation of DPS guidelines.",
+                  "Staff Report": "Staff Report Tickets are used when a member of our community staff are in violation of community guidelines, staff guidelines, corruption, or abuse of authority. These tickets are reviewed by management directly."
+        }
         generator = embed_generator(
             title="North Society Ticket Booth",
-            description="*Description Coming Soon*",
+            description="Welcome to the Support Area! We ask that you remain patient while our team gets to your ticket. We ask that you create only one ticket per instance. We also ask that you use the correct ticket for the instance you need assistance with.",
             color=0xC08C38,
             image_url="https://media.discordapp.net/attachments/1161404493016076328/1184080280177344553/Embed_Bottom.png?ex=65a65b31&is=6593e631&hm=0231e99ece59d8580afa4a08b30b81a60e9eab8bb37faff69f4bab6ac2f71482&=&format=webp&quality=lossless&width=960&height=24",
             fields=fields,
@@ -63,6 +70,45 @@ class tickets(commands.Cog):
 
         await channel.send(embeds=[imageEmbed, mainEmbed], view=view)
         await interaction.response.send_message("Support Embed Created!", ephemeral=True)
+
+
+    @ticket.command(name="add", description="Add User to Current Ticket")
+    @app_commands.checks.has_any_role(1158576945144004668, 1158576946914005082, 1158576945857048656, 1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654)
+    async def support(self, interaction: discord.Interaction, user: discord.Member):
+        if interaction.channel.category.id not in [1193318391277158460, 1193318818542522398]:
+            return await interaction.response.send_message("*You need to be in a ticket to execute this command!*", ephemeral=True)
+        elif interaction.channel.category_id == 1193318818542522398 and "sreport" in interaction.channel.name:
+            user_roles = [role.id for role in interaction.user.roles]
+            for id in [1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654]:
+                if id in user_roles:
+                    break
+            else:
+                return await interaction.response.send_message(f"*You cannot add users inside staff report tickets! (Asst. Manager+)*", ephemeral=True)
+        try:
+            await interaction.channel.set_permissions(user, view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
+        except Exception:
+            return await interaction.response.send_message(f"*An error occured while adding {user.mention} to {interaction.channel.mention}!*", ephemeral=True)
+        await interaction.response.send_message(f"*Successfully added {user.mention} to {interaction.channel.mention}!*", ephemeral=True)
+
+
+    @ticket.command(name="remove", description="Remove User from Current Ticket")
+    @app_commands.checks.has_any_role(1158576945144004668, 1158576946914005082, 1158576945857048656, 1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654)
+    async def support(self, interaction: discord.Interaction, user: discord.Member):
+        if interaction.channel.category.id not in [1193318391277158460, 1193318818542522398]:
+            return await interaction.response.send_message("*You need to be in a ticket to execute this command!*", ephemeral=True)
+        elif interaction.channel.category_id == 1193318818542522398 and "sreport" in interaction.channel.name:
+            user_roles = [role.id for role in interaction.user.roles]
+            for id in [1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654]:
+                if id in user_roles:
+                    break
+            else:
+                return await interaction.response.send_message(f"*You cannot remove users from staff report tickets! (Asst. Manager+)*", ephemeral=True)
+        try:
+            await interaction.channel.set_permissions(user, view_channel=False, send_messages=False, read_message_history=False, read_messages=False)
+        except Exception:
+            return await interaction.response.send_message(f"*An error occured while removing {user.mention} from {interaction.channel.mention}!*", ephemeral=True)
+        await interaction.response.send_message(f"*Successfully removed {user.mention} from {interaction.channel.mention}!*", ephemeral=True)
+
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
@@ -86,10 +132,11 @@ class tickets(commands.Cog):
                 )
                 embed = generator.build()
                 view = discord.ui.View()
+                await channel.set_permissions(interaction.user, view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
                 await interaction.response.send_message(f"*Your ticket has been created! Please navigate to <#{channel.id}> to continue your support request.*", ephemeral=True)
-                await channel.send(content=f"{interaction.user.mention} <Support Ping>", embed=embed, view=view)
+                await channel.send(content=f"{interaction.user.mention} <@&1158576945144004668>", embed=embed, view=view)
             elif "pr" in buttonPressed:
-                channel = await guild.create_text_channel(f"{interaction.user.name}-player", category=report_category)
+                channel = await guild.create_text_channel(f"{interaction.user.name}-preport", category=report_category)
                 generator = embed_generator(
                     title="North Society Support",
                     description="PLACEHOLDER TEXT",
@@ -102,10 +149,13 @@ class tickets(commands.Cog):
                 )
                 embed = generator.build()
                 view = discord.ui.View()
+                await channel.set_permissions(guild.get_role(1158576946914005082), view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
+                await channel.set_permissions(guild.get_role(1158576945857048656), view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
+                await channel.set_permissions(interaction.user, view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
                 await interaction.response.send_message(f"*Your ticket has been created! Please navigate to <#{channel.id}> to continue your report.*", ephemeral=True)
-                await channel.send(content=f"{interaction.user.mention} <Staff Ping>", embed=embed, view=view)
+                await channel.send(content=f"{interaction.user.mention} <@&1158576946914005082> <@&1158576945857048656>", embed=embed, view=view)
             elif "sr" in buttonPressed:
-                channel = await guild.create_text_channel(f"{interaction.user.name}-staff", category=report_category)
+                channel = await guild.create_text_channel(f"{interaction.user.name}-sreport", category=report_category)
                 generator = embed_generator(
                     title="North Society Support",
                     description="PLACEHOLDER TEXT",
@@ -118,8 +168,9 @@ class tickets(commands.Cog):
                 )
                 embed = generator.build()
                 view = discord.ui.View()
+                await channel.set_permissions(interaction.user, view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
                 await interaction.response.send_message(f"*Your ticket has been created! Please navigate to <#{channel.id}> to continue your report.*", ephemeral=True)
-                await channel.send(content=f"{interaction.user.mention} <Staff Ping>", embed=embed, view=view)
+                await channel.send(content=f"{interaction.user.mention} <@&1158576944061878273> <@&1158873454926372926>", embed=embed, view=view)
         except AttributeError:
             pass
         except KeyError:
