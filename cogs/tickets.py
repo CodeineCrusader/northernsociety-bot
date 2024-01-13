@@ -1,4 +1,5 @@
 import platform
+from typing import Optional
 import discord
 from discord import app_commands, ui
 from discord.ext import commands, tasks
@@ -32,12 +33,100 @@ logger.addHandler(file_h)
 
 staff_roles = [1158576945144004668, 1158576946914005082, 1158576945857048656, 1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654]
 
+class ticket_closed(discord.ui.View):
+    def __init__(self, user_id, original_opener):
+        super().__init__(timeout=None)
+        self.user_id = user_id
+        self.original_opener = original_opener
+    @discord.ui.button(label="Delete", style=discord.ButtonStyle.red)
+    async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
+        user_roles = [role.id for role in interaction.user.roles]
+        for role in user_roles:
+            if role in staff_roles:
+                staff = True
+        if not staff:
+            return await interaction.response.send_message("You cannot use this button!", ephemeral=True)
+        await interaction.response.send_message("*Ticket Deleted!*", ephemeral=True)
+        await interaction.channel.delete()
+        self.stop()
+
+
+    @discord.ui.button(label="Reopen", style=discord.ButtonStyle.green)
+    async def reopen(self, interaction: discord.Interaction, button: discord.ui.Button):
+        user_roles = [role.id for role in interaction.user.roles]
+        for role in user_roles:
+            if role in staff_roles:
+                staff = True
+        if not staff:
+            return await interaction.response.send_message("You cannot use this button!", ephemeral=True)
+        await interaction.response.send_message("*Ticket Reopened!*", ephemeral=True)
+        await interaction.channel.set_permissions(interaction.guild.get_member(self.original_opener), view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
+        view = ticket_view(self.original_opener)
+        await interaction.channel.send(content=f"*Ticket Reopened by {interaction.user.mention}!*", view=view)
+        self.stop()
+
+
+class ticket_close(discord.ui.View):
+    def __init__(self, user_id, original_opener):
+        super().__init__(timeout=180)
+        self.user_id = user_id
+        self.original_opener = original_opener
+        self.value = None
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, custom_id="confirm")
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.user_id:
+            return await interaction.response.send_message("You cannot use this button!", ephemeral=True)
+        await interaction.response.send_message("*Ticket Closed!*", ephemeral=True)
+        await interaction.channel.edit(sync_permissions=True)
+        if "preport" in interaction.channel.name:
+            await interaction.channel.set_permissions(interaction.guild.get_role(1158576946914005082), view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
+            await interaction.channel.set_permissions(interaction.guild.get_role(1158576945857048656), view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
+        view = ticket_closed(interaction.user.id, self.original_opener)
+        await interaction.channel.send(content=f"*Ticket Closed by {interaction.user.mention}*", view=view)
+        self.value = True
+        self.stop()
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, custom_id="cancel")
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.user_id:
+            return await interaction.response.send_message("You cannot use this button!", ephemeral=True)
+        await interaction.response.send_message("*Ticket Close Cancelled!*", ephemeral=True)
+        self.value = False
+        self.stop()
+
+
+class ticket_view(discord.ui.View):
+    def __init__(self, user_id):
+        super().__init__(timeout=None)
+        self.user_id = user_id
+    @discord.ui.button(label="Close", style=discord.ButtonStyle.red, custom_id="close")
+    async def close(self, interaction: discord.Interaction,  button: discord.ui.Button):
+        user_roles = [role.id for role in interaction.user.roles]
+        for role in user_roles:
+            if role in staff_roles:
+                break
+        else:
+            return await interaction.response.send_message("You cannot use this button!", ephemeral=True)
+        if interaction.user.id == self.user_id:
+            while True:
+                view = ticket_close(interaction.user.id, self.user_id)
+                await interaction.response.send_message("*Are you sure you want to close this ticket?*", view=view, ephemeral=True)
+                await view.wait()
+                if view.value:
+                    break
+        else:
+            return await interaction.response.send_message("You cannot use this button!", ephemeral=True)
+        self.stop()
+    @discord.ui.button(label="Add User", style=discord.ButtonStyle.blurple, custom_id="add")
+    async def add_user(self, interaction: discord.Interaction, button: discord.ui.Button):
+        pass
+
+
 class tickets(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
     ticket = app_commands.Group(name="ticket", description="Commands in Relation to the Ticket Module.")
-    
+
     @ticket.command(name="support", description="Create Support Ticket Embed")
     @app_commands.checks.has_permissions(administrator=True)
     async def support(self, interaction: discord.Interaction):
@@ -74,7 +163,7 @@ class tickets(commands.Cog):
 
     @ticket.command(name="add", description="Add User to Current Ticket")
     @app_commands.checks.has_any_role(1158576945144004668, 1158576946914005082, 1158576945857048656, 1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654)
-    async def support(self, interaction: discord.Interaction, user: discord.Member):
+    async def add(self, interaction: discord.Interaction, user: discord.Member):
         if interaction.channel.category.id not in [1193318391277158460, 1193318818542522398]:
             return await interaction.response.send_message("*You need to be in a ticket to execute this command!*", ephemeral=True)
         elif interaction.channel.category_id == 1193318818542522398 and "sreport" in interaction.channel.name:
@@ -93,7 +182,7 @@ class tickets(commands.Cog):
 
     @ticket.command(name="remove", description="Remove User from Current Ticket")
     @app_commands.checks.has_any_role(1158576945144004668, 1158576946914005082, 1158576945857048656, 1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654)
-    async def support(self, interaction: discord.Interaction, user: discord.Member):
+    async def remove(self, interaction: discord.Interaction, user: discord.Member):
         if interaction.channel.category.id not in [1193318391277158460, 1193318818542522398]:
             return await interaction.response.send_message("*You need to be in a ticket to execute this command!*", ephemeral=True)
         elif interaction.channel.category_id == 1193318818542522398 and "sreport" in interaction.channel.name:
@@ -131,7 +220,7 @@ class tickets(commands.Cog):
                     footer_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/129ad674a4c2a9eea1df068459e5ba00.webp?size=1024&format=webp&width=0&height=204",
                 )
                 embed = generator.build()
-                view = discord.ui.View()
+                view = ticket_view(interaction.user.id)
                 await channel.set_permissions(interaction.user, view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
                 await interaction.response.send_message(f"*Your ticket has been created! Please navigate to <#{channel.id}> to continue your support request.*", ephemeral=True)
                 await channel.send(content=f"{interaction.user.mention} <@&1158576945144004668>", embed=embed, view=view)
@@ -148,13 +237,14 @@ class tickets(commands.Cog):
                     footer_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/129ad674a4c2a9eea1df068459e5ba00.webp?size=1024&format=webp&width=0&height=204",
                 )
                 embed = generator.build()
-                view = discord.ui.View()
+                view = ticket_view(interaction.user.id)
                 await channel.set_permissions(guild.get_role(1158576946914005082), view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
                 await channel.set_permissions(guild.get_role(1158576945857048656), view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
                 await channel.set_permissions(interaction.user, view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
                 await interaction.response.send_message(f"*Your ticket has been created! Please navigate to <#{channel.id}> to continue your report.*", ephemeral=True)
                 await channel.send(content=f"{interaction.user.mention} <@&1158576946914005082> <@&1158576945857048656>", embed=embed, view=view)
             elif "sr" in buttonPressed:
+                original_opener = interaction.user
                 channel = await guild.create_text_channel(f"{interaction.user.name}-sreport", category=report_category)
                 generator = embed_generator(
                     title="North Society Support",
@@ -167,7 +257,7 @@ class tickets(commands.Cog):
                     footer_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/129ad674a4c2a9eea1df068459e5ba00.webp?size=1024&format=webp&width=0&height=204",
                 )
                 embed = generator.build()
-                view = discord.ui.View()
+                view = ticket_view(interaction.user.id)
                 await channel.set_permissions(interaction.user, view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
                 await interaction.response.send_message(f"*Your ticket has been created! Please navigate to <#{channel.id}> to continue your report.*", ephemeral=True)
                 await channel.send(content=f"{interaction.user.mention} <@&1158576944061878273> <@&1158873454926372926>", embed=embed, view=view)
