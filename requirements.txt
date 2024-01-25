@@ -8,3 +8,4 @@ pytest
 flake8
 pylint
 python-dotenv
+chat-exporter

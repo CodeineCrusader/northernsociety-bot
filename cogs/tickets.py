@@ -1,19 +1,24 @@
+import io
+import logging
+import os
 import platform
+import random
+import time
 from typing import Optional
+
+import chat_exporter
+import colorama
 import discord
+import jishaku
 from discord import app_commands, ui
 from discord.ext import commands, tasks
-from discord.utils import get, setup_logging
 from discord.ui import Button, View
-import logging
-import time
-import os
-import colorama
-import random
+from discord.utils import get, setup_logging
 from dotenv import dotenv_values
-import jishaku
-from interactions import input_modal, ban_input_other
+
 from embed_generator import embed_generator
+from interactions import (RoleDropdownSelect, UserDropdownSelect,
+                          ban_input_other, input_modal)
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(filename)s | %(levelname)s | %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -33,6 +38,7 @@ logger.addHandler(file_h)
 
 staff_roles = [1158576945144004668, 1158576946914005082, 1158576945857048656, 1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654]
 
+
 class ticket_closed(discord.ui.View):
     def __init__(self, user_id, original_opener):
         super().__init__(timeout=None)
@@ -46,7 +52,11 @@ class ticket_closed(discord.ui.View):
                 staff = True
         if not staff:
             return await interaction.response.send_message("You cannot use this button!", ephemeral=True)
+        channel = interaction.guild.get_channel(1159578058597085194)
         await interaction.response.send_message("*Ticket Deleted!*", ephemeral=True)
+        transcript = await chat_exporter.export(interaction.channel, limit=None, tz_info='UTC')
+        transcript_file = discord.File(io.BytesIO(transcript.encode()), filename=f"{interaction.channel.name}_transcript.html")
+        await channel.send(file=transcript_file)
         await interaction.channel.delete()
         self.stop()
 
@@ -98,7 +108,9 @@ class ticket_view(discord.ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=None)
         self.user_id = user_id
-    @discord.ui.button(label="Close", style=discord.ButtonStyle.red, custom_id="close")
+        self.add_item(UserDropdownSelect(placeholder="Add Users", max_values=10, custom_id="user_ticket_add"))
+        self.add_item(RoleDropdownSelect(placeholder="Add Roles", max_values=10, custom_id="role_ticket_add"))
+    @discord.ui.button(label="Close", style=discord.ButtonStyle.red)
     async def close(self, interaction: discord.Interaction,  button: discord.ui.Button):
         user_roles = [role.id for role in interaction.user.roles]
         for role in user_roles:
@@ -116,9 +128,6 @@ class ticket_view(discord.ui.View):
         else:
             return await interaction.response.send_message("You cannot use this button!", ephemeral=True)
         self.stop()
-    @discord.ui.button(label="Add User", style=discord.ButtonStyle.blurple, custom_id="add")
-    async def add_user(self, interaction: discord.Interaction, button: discord.ui.Button):
-        pass
 
 
 class tickets(commands.Cog):
