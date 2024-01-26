@@ -147,7 +147,7 @@ async def ban(interaction: discord.Interaction, ban_user: discord.User, ban_type
         case "1a":
             # TODO: Create Soft Bans, Add and Remove Ban with Specified Reason and Testimony sent in Staff Channel
             ban_type_str = "Soft Ban"
-            reason_str = f"{reason_testimony["Reason"]} (Soft Ban by {interaction.user.global_name})"
+            reason_str = f"{reason_testimony['Reason']} (Soft Ban by {interaction.user.global_name})"
             await ban_user.create_dm()
             await ban_user.dm_channel.send(content=f"*You have been banned from `{interaction.guild.name}` for `{reason_testimony["Reason"]}`")
             await interaction.guild.ban(user=ban_user, reason=reason_str)
