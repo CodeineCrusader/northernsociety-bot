@@ -41,7 +41,7 @@ class mod_log_handling(commands.Cog):
 
     @commands.Cog.listener()
     async def on_audit_log_entry_create(self, entry) -> None:
-        print(entry.user_id)
+        print(entry.target)
         if entry.action not in self.moderation_list:
             return
 
