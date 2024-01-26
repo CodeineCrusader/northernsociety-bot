@@ -149,15 +149,15 @@ async def ban(interaction: discord.Interaction, ban_user: discord.User, ban_type
             ban_type_str = "Soft Ban"
             reason_str = f"{reason_testimony['Reason']} (Soft Ban by {interaction.user.global_name})"
             await ban_user.create_dm()
-            await ban_user.dm_channel.send(content=f"*You have been banned from `{interaction.guild.name}` for `{reason_testimony["Reason"]}`")
+            await ban_user.dm_channel.send(content=f"*You have been banned from `{interaction.guild.name}` for `{reason_testimony['Reason']}`")
             await interaction.guild.ban(user=ban_user, reason=reason_str)
             await interaction.guild.unban(user=ban_user, reason=reason_str)
         case "1b":
             # TODO: Create Hard Ban, Ban User for Specified Time and Submit Testimony to Staff Channel
             ban_type_str = "Hard Ban"
-            reason_str = f"{reason_testimony["Reason"]} (Hard Ban by {interaction.user.name})"
+            reason_str = f"{reason_testimony['Reason']} (Hard Ban by {interaction.user.name})"
             await ban_user.create_dm()
-            await ban_user.dm_channel.send(content=f"*You have been banned from `{interaction.guild.name}` for `{reason_testimony["Reason"]}`")
+            await ban_user.dm_channel.send(content=f"*You have been banned from `{interaction.guild.name}` for `{reason_testimony['Reason']}`")
             await interaction.guild.ban(user=ban_user, reason=reason_str)
     embed = embed_generator(
                 title="Ban Submitted", description=f"**PLACEHOLDER DESCRIPTION**\n\nBan Information:\nUser: {ban_user}\nType: {ban_type_str}\nModerator: {interaction.user}\n\n Reason: {reason_testimony['Reason']}\nTestimony: {reason_testimony['Testimony']}", color=0xC08C38, fields={},
