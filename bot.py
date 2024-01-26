@@ -58,7 +58,7 @@ async def status():
 class Client(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=commands.when_mentioned_or(prefix), case_insensitive=True, intents=discord.Intents.all())
-        self.cogs_list = ['jishaku', 'cogs.tickets', 'cogs.moderation.mod_log_handling']
+        self.cogs_list = ['jishaku', 'cogs.tickets']
 
     async def setup_hook(self):
         for ext in self.cogs_list:

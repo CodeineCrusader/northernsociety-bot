@@ -42,6 +42,6 @@ class mod_log_handling(commands.Cog):
             case _:
                 pass
 
-def setup(client: commands.Bot):
+async def setup(client: commands.Bot):
     client.add_cog(mod_log_handling(client))
     logger.info(f"cogs.moderation.mod_log_handling.py Successfully Loaded!")
