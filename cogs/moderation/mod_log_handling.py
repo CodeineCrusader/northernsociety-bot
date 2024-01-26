@@ -30,8 +30,7 @@ class mod_log_handling(commands.Cog):
             discord.AuditLogAction.kick,
             discord.AuditLogAction.member_prune,
             discord.AuditLogAction.member_update,
-            discord.AuditLogAction.member_disconnect,
-            discord.AuditLogAction.member_move
+            discord.AuditLogAction.member_disconnect
         ]
     # *         This section will be handling mod logs done by the user directly, and not through the bot (not through the command the bot provides)
     # ?         Unban, Ban, Timeout, Server Mute, Server Deafen ...
@@ -42,7 +41,7 @@ class mod_log_handling(commands.Cog):
 
     @commands.Cog.listener()
     async def on_audit_log_entry_create(self, entry) -> None:
-        print(entry)
+        print(entry.user_id)
         if entry.action not in self.moderation_list:
             return
 
