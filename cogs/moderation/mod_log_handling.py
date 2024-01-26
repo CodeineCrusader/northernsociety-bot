@@ -24,14 +24,14 @@ logger.addHandler(file_h)
 class mod_log_handling(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-    
     # *         This section will be handling mod logs done by the user directly, and not through the bot (not through the command the bot provides)
     # ?         Unban, Ban, Timeout, Server Mute, Server Deafen ...
     # TODO:     Plan to Upload Moderation Data for Logging Purposes
     # !         If the action is done by discord.Client.user.name (bot client) then return
     # !         The uploading of moderation data by the bot will be handled when the user is moderated THROUGH the bot
-    
-    @commands.cog.listener()
+
+
+    @commands.Cog.listener()
     async def on_audit_log_entry_create(self, entry) -> None:
         print(entry)
         match entry:
