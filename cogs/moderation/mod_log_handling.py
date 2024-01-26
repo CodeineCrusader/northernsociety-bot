@@ -43,5 +43,5 @@ class mod_log_handling(commands.Cog):
                 pass
 
 async def setup(client: commands.Bot):
-    client.add_cog(mod_log_handling(client))
+    await client.add_cog(mod_log_handling(client))
     logger.info(f"cogs.moderation.mod_log_handling.py Successfully Loaded!")
