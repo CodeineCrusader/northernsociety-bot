@@ -24,6 +24,15 @@ logger.addHandler(file_h)
 class mod_log_handling(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
+        self.moderation_list = [
+            discord.AuditLogAction.ban,
+            discord.AuditLogAction.unban,
+            discord.AuditLogAction.kick,
+            discord.AuditLogAction.member_prune,
+            discord.AuditLogAction.member_update,
+            discord.AuditLogAction.member_disconnect,
+            discord.AuditLogAction.member_move
+        ]
     # *         This section will be handling mod logs done by the user directly, and not through the bot (not through the command the bot provides)
     # ?         Unban, Ban, Timeout, Server Mute, Server Deafen ...
     # TODO:     Plan to Upload Moderation Data for Logging Purposes
@@ -33,15 +42,9 @@ class mod_log_handling(commands.Cog):
 
     @commands.Cog.listener()
     async def on_audit_log_entry_create(self, entry) -> None:
-        match entry.action:
-            # ? Is this even needed? Just take all the information from `entry` param
-            case discord.AuditLogAction.ban: 
-                print(f"{entry.user.name} was banned.")
-            case discord.AuditLogAction.unban:
-                print(f"{entry.user.name} was unbanned.")
-            case _:
-                # * Return everything else as this ONLY handles moderation logging.
-                return
+        print(entry)
+        if entry.action not in self.moderation_list:
+            return
 
         # TODO: Send data to database to be saved
         # * Below are the columns of information being sent to the database
