@@ -41,9 +41,12 @@ class mod_log_handling(commands.Cog):
 
     @commands.Cog.listener()
     async def on_audit_log_entry_create(self, entry) -> None:
-        print(entry.target)
+        print(entry)
         if entry.action not in self.moderation_list:
             return
+        elif entry.action == discord.AuditLogAction.member_update \
+            and entry.target :
+                return
 
         # TODO: Send data to database to be saved
         # * Below are the columns of information being sent to the database
