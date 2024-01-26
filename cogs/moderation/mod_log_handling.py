@@ -34,14 +34,24 @@ class mod_log_handling(commands.Cog):
     @commands.Cog.listener()
     async def on_audit_log_entry_create(self, entry) -> None:
         match entry.action:
-            # * On Ban Do:
+            # ? Is this even needed? Just take all the information from `entry` param
             case discord.AuditLogAction.ban: 
                 print(f"{entry.user.name} was banned.")
             case discord.AuditLogAction.unban:
                 print(f"{entry.user.name} was unbanned.")
-            # * Everything Else:
             case _:
-                print(entry.action)
+                # * Return everything else as this ONLY handles moderation logging.
+                return
+
+        # TODO: Send data to database to be saved
+        # * Below are the columns of information being sent to the database
+        # * uid | mid | action | reason | timestamp
+        # ? UID - ID of the Violator
+        # ? MID - ID of the Moderator
+        # ? Action - Action Used Against Violator
+        # ? Reason - Reason for Action Being Taken
+        # ? Timestamp - Timestamp of the Action being Taken Against the Violator
+
 
 async def setup(client: commands.Bot):
     await client.add_cog(mod_log_handling(client))
