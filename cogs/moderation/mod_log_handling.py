@@ -33,13 +33,15 @@ class mod_log_handling(commands.Cog):
 
     @commands.Cog.listener()
     async def on_audit_log_entry_create(self, entry) -> None:
-        match entry['action']:
+        match entry.action:
             # * On Ban Do:
             case discord.AuditLogAction.ban: 
-                pass
+                print(f"{entry.user.name} was banned.")
+            case discord.AuditLogAction.unban:
+                print(f"{entry.user.name} was unbanned.")
             # * Everything Else:
             case _:
-                print(entry['action'])
+                print(entry.action)
 
 async def setup(client: commands.Bot):
     await client.add_cog(mod_log_handling(client))
