@@ -43,11 +43,13 @@ class mod_log_handling(commands.Cog):
     async def on_audit_log_entry_create(self, entry) -> None:
         print(f"User: {entry.user}")
         print(f"Target: {entry.target}")
+        print(entry.target.diff)
+        
         if entry.action not in self.moderation_list:
             return
-        elif entry.action == discord.AuditLogAction.member_update \
-            and entry.target.id == entry.user.id \
-                :
+        elif entry.action == discord.AuditLogAction.member_update:
+                # audit_log_history = [entry async for entry in entry.guild.audit_logs(action=discord.AuditLogAction.member_update)]
+                # audit_log_history
                 return
 
         # TODO: Send data to database to be saved
