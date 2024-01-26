@@ -34,7 +34,11 @@ class mod_log_handling(commands.Cog):
     async def on_audit_log_entry_create(self, entry) -> None:
         print(entry)
         match entry:
-            case "":
+            # * On Ban Do:
+            case "": 
+                pass
+            # * Everything Else:
+            case _:
                 pass
 
 def setup(client: commands.Bot):
