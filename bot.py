@@ -10,11 +10,10 @@ import jishaku
 from discord import app_commands, ui
 from discord.ext import commands, tasks
 from discord.ui import Button, View
-from discord.utils import get, setup_logging
+from discord.utils import get
 from dotenv import dotenv_values
-
 from embed_generator import embed_generator
-from interactions import ban_input_other, input_modal
+from interactions import ban_input_other
 
 config = dotenv_values(".env")
 

@@ -1,24 +1,14 @@
 import io
 import logging
-import os
-import platform
-import random
 import time
-from typing import Optional
 
 import chat_exporter
-import colorama
 import discord
-import jishaku
-from discord import app_commands, ui
-from discord.ext import commands, tasks
-from discord.ui import Button, View
-from discord.utils import get, setup_logging
-from dotenv import dotenv_values
-
+from discord import app_commands
+from discord.ext import commands
+from discord.ui import Button
 from embed_generator import embed_generator
-from interactions import (RoleDropdownSelect, UserDropdownSelect,
-                          ban_input_other, input_modal)
+from interactions import RoleDropdownSelect, UserDropdownSelect
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(filename)s | %(levelname)s | %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
 logger = logging.getLogger(__name__)
