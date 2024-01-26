@@ -278,4 +278,4 @@ class tickets(commands.Cog):
 
 async def setup(client: commands.Bot):
     await client.add_cog(tickets(client))
-    logger.info(f"cogs.tickets.tickets.py Successfully Loaded!")
+    logger.info(f"cogs.tickets.py Successfully Loaded!")
