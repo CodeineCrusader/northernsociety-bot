@@ -161,30 +161,13 @@ class tickets(commands.Cog):
         await interaction.response.send_message("Support Embed Created!", ephemeral=True)
 
 
-    @ticket.command(name="add", description="Add User to Current Ticket")
+    @ticket.command(name="remove", description="Remove User or Role from Current Ticket")
     @app_commands.checks.has_any_role(1158576945144004668, 1158576946914005082, 1158576945857048656, 1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654)
-    async def add(self, interaction: discord.Interaction, user: discord.Member):
+    async def remove(self, interaction: discord.Interaction, user: discord.Member = None, role: discord.Role = None):
+        # Check if support ticket
         if interaction.channel.category.id not in [1193318391277158460, 1193318818542522398]:
             return await interaction.response.send_message("*You need to be in a ticket to execute this command!*", ephemeral=True)
-        elif interaction.channel.category_id == 1193318818542522398 and "sreport" in interaction.channel.name:
-            user_roles = [role.id for role in interaction.user.roles]
-            for id in [1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654]:
-                if id in user_roles:
-                    break
-            else:
-                return await interaction.response.send_message(f"*You cannot add users inside staff report tickets! (Asst. Manager+)*", ephemeral=True)
-        try:
-            await interaction.channel.set_permissions(user, view_channel=True, send_messages=True, read_message_history=True, read_messages=True)
-        except Exception:
-            return await interaction.response.send_message(f"*An error occured while adding {user.mention} to {interaction.channel.mention}!*", ephemeral=True)
-        await interaction.response.send_message(f"*Successfully added {user.mention} to {interaction.channel.mention}!*", ephemeral=True)
-
-
-    @ticket.command(name="remove", description="Remove User from Current Ticket")
-    @app_commands.checks.has_any_role(1158576945144004668, 1158576946914005082, 1158576945857048656, 1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654)
-    async def remove(self, interaction: discord.Interaction, user: discord.Member):
-        if interaction.channel.category.id not in [1193318391277158460, 1193318818542522398]:
-            return await interaction.response.send_message("*You need to be in a ticket to execute this command!*", ephemeral=True)
+        # Check if low ranking staff member and if ticket is a Staff Report
         elif interaction.channel.category_id == 1193318818542522398 and "sreport" in interaction.channel.name:
             user_roles = [role.id for role in interaction.user.roles]
             for id in [1158576944061878273, 1158873454926372926, 1164618710376525834, 1158873235182600233, 1158576943663427654]:
@@ -192,11 +175,22 @@ class tickets(commands.Cog):
                     break
             else:
                 return await interaction.response.send_message(f"*You cannot remove users from staff report tickets! (Asst. Manager+)*", ephemeral=True)
-        try:
-            await interaction.channel.set_permissions(user, view_channel=False, send_messages=False, read_message_history=False, read_messages=False)
-        except Exception:
-            return await interaction.response.send_message(f"*An error occured while removing {user.mention} from {interaction.channel.mention}!*", ephemeral=True)
-        await interaction.response.send_message(f"*Successfully removed {user.mention} from {interaction.channel.mention}!*", ephemeral=True)
+        # Check if role and/or user given
+        elif role == None and user == None:
+            return await interaction.response.send_message("*You need to specify a User or Role to remove from the ticket!")        
+
+        if user:
+            try:
+                await interaction.channel.set_permissions(user, view_channel=False, send_messages=False, read_message_history=False, read_messages=False)
+            except Exception:
+                return await interaction.response.send_message(f"*An error occured while removing {user.mention} from {interaction.channel.mention}!*", ephemeral=True)
+            return await interaction.response.send_message(f"*Successfully removed {user.mention} from {interaction.channel.mention}!*", ephemeral=True)
+        elif role:
+            try:
+                await interaction.channel.set_permissions(role, view_channel=False, send_messages=False, read_message_history=False, read_messages=False)
+            except Exception:
+                return await interaction.response.send_message(f"*An error occured while removing {role.mention} from {interaction.channel.mention}!*", ephemeral=True)
+            return await interaction.response.send_message(f"*Successfully removed {role.mention} from {interaction.channel.mention}!*", ephemeral=True)
 
 
     @commands.Cog.listener()
