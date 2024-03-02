@@ -2,6 +2,7 @@ import logging
 import time
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(filename)s | %(levelname)s | %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
@@ -23,7 +24,6 @@ logger.addHandler(file_h)
 class mod_log_handling(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-    
     # *         This section will be handling mod logs done by the user directly, and not through the bot (not through the command the bot provides)
     # ?         Unban, Ban, Timeout, Server Mute, Server Deafen ...
     # TODO:     Plan to Upload Moderation Data for Logging Purposes
