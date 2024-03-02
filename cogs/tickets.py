@@ -7,6 +7,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ui import Button
+
 from embed_generator import embed_generator
 from interactions import RoleDropdownSelect, UserDropdownSelect
 
@@ -210,13 +211,13 @@ class tickets(commands.Cog):
                 channel = await guild.create_text_channel(f"{interaction.user.name}-support", category=support_category)
                 generator = embed_generator(
                     title="North Society Support",
-                    description="PLACEHOLDER TEXT",
+                    description=f"Hey {interaction.user.mention}! While we wait for our <@&1158576945144004668> to assist you, please write down how we can assist you! We do ask for patience until the response, and please refrain from pinging our community staff in this ticket. Thank you! ",
                     color=0xC08C38,
                     fields={},
-                    author="PLACEHOLDER",
-                    author_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/129ad674a4c2a9eea1df068459e5ba00.webp?size=1024&format=webp&width=0&height=204",
-                    footer="PLACEHOLDER",
-                    footer_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/129ad674a4c2a9eea1df068459e5ba00.webp?size=1024&format=webp&width=0&height=204",
+                    author="Northern Solutions",
+                    author_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/f0da46c389882cf5614f849f81287e08.webp?size=1024&format=webp&width=0&height=204",
+                    footer="Northern Society Administration",
+                    footer_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/f0da46c389882cf5614f849f81287e08.webp?size=1024&format=webp&width=0&height=204",
                 )
                 embed = generator.build()
                 view = ticket_view(interaction.user.id)
@@ -227,13 +228,24 @@ class tickets(commands.Cog):
                 channel = await guild.create_text_channel(f"{interaction.user.name}-preport", category=report_category)
                 generator = embed_generator(
                     title="North Society Support",
-                    description="PLACEHOLDER TEXT",
+                    description=f"""
+Hello, {interaction.user.mention}! A member of our moderation team will be with you shortly. Please tell fill out the following while you wait. 
+
+```
+Player / Member: 
+Time of Offense: 
+Rule Violation:
+Is this report on a LEO? 
+What outcome are you looking for?
+Proof of Event:
+```
+""",
                     color=0xC08C38,
                     fields={},
-                    author="PLACEHOLDER",
-                    author_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/129ad674a4c2a9eea1df068459e5ba00.webp?size=1024&format=webp&width=0&height=204",
-                    footer="PLACEHOLDER",
-                    footer_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/129ad674a4c2a9eea1df068459e5ba00.webp?size=1024&format=webp&width=0&height=204",
+                    author="Northern Solutions",
+                    author_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/f0da46c389882cf5614f849f81287e08.webp?size=1024&format=webp&width=0&height=204",
+                    footer="Northern Society Administration",
+                    footer_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/f0da46c389882cf5614f849f81287e08.webp?size=1024&format=webp&width=0&height=204",
                 )
                 embed = generator.build()
                 view = ticket_view(interaction.user.id)
@@ -247,13 +259,23 @@ class tickets(commands.Cog):
                 channel = await guild.create_text_channel(f"{interaction.user.name}-sreport", category=report_category)
                 generator = embed_generator(
                     title="North Society Support",
-                    description="PLACEHOLDER TEXT",
+                    description=f"""
+Hello, {interaction.user.mention}! A member of our Administration Team will be with you shortly. Please tell fill out the following while you wait. 
+
+```
+Player / Member: 
+Time of Offense: 
+Rule Violation:
+What outcome are you looking for?
+Proof of Event:
+```
+                    """,
                     color=0xC08C38,
                     fields={},
-                    author="PLACEHOLDER",
-                    author_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/129ad674a4c2a9eea1df068459e5ba00.webp?size=1024&format=webp&width=0&height=204",
-                    footer="PLACEHOLDER",
-                    footer_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/129ad674a4c2a9eea1df068459e5ba00.webp?size=1024&format=webp&width=0&height=204",
+                    author="Northern Solutions",
+                    author_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/f0da46c389882cf5614f849f81287e08.webp?size=1024&format=webp&width=0&height=204",
+                    footer="Northern Society Administration",
+                    footer_icon_url="https://cdn.discordapp.com/icons/1158271879556104204/f0da46c389882cf5614f849f81287e08.webp?size=1024&format=webp&width=0&height=204",
                 )
                 embed = generator.build()
                 view = ticket_view(interaction.user.id)
